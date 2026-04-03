@@ -32,7 +32,9 @@ loadDotEnv();
 const url = process.env.SUPABASE_URL || "";
 const key = process.env.SUPABASE_ANON_KEY || "";
 
+const outDir = path.join(root, "public");
+fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(
-  path.join(root, "config.js"),
+  path.join(outDir, "config.js"),
   `window.__SUPABASE_URL=${JSON.stringify(url)};\nwindow.__SUPABASE_ANON_KEY=${JSON.stringify(key)};\n`
 );
