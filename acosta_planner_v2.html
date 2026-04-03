@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Acosta">
+<title>Acosta</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{min-height:100%;overscroll-behavior:none;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;max-width:480px;margin:0 auto;padding-bottom:80px;}
+.pg{display:none;padding:16px;}.pg.on{display:block;}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:0.5px solid #e0e0e0;display:flex;padding:6px 0 18px;z-index:100;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:none;background:none;cursor:pointer;}
+.nb svg{width:22px;height:22px;stroke:#ccc;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.nb span{font-size:10px;color:#ccc;font-weight:500;}
+.nb.on svg{stroke:#1a1a1a;}.nb.on span{color:#1a1a1a;font-weight:700;}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:0.5px solid #ebebeb;}
+.sh{font-size:10px;font-weight:700;color:#bbb;letter-spacing:0.07em;text-transform:uppercase;margin:14px 0 8px;}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.pill{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;}
+.pfire{background:#FFF3E0;}.pfire .n{font-size:18px;font-weight:700;color:#BF360C;}.pfire .l{font-size:11px;color:#BF360C;}
+.pstar{background:#f5f5f3;border:0.5px solid #e0e0e0;}.pstar .n{font-size:14px;font-weight:700;color:#1a1a1a;}.pstar .l{font-size:11px;color:#888;}
+.lvlbar{background:#f0f0ee;border-radius:4px;height:7px;overflow:hidden;margin-top:5px;}
+.lvlfill{height:100%;border-radius:4px;background:#1a1a1a;transition:width 0.4s;}
+.dt-row{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px;}
+.dt{padding:7px 13px;border-radius:20px;border:1.5px solid #e0e0e0;background:#fff;font-size:12px;font-weight:700;color:#888;cursor:pointer;transition:all 0.15s;}
+.dt.serve.on{background:#E8F5E9;color:#1B5E20;border-color:#A5D6A7;}
+.dt.construct.on{background:#FFF8E1;color:#E65100;border-color:#FFCC02;}
+.dt.off.on{background:#f5f5f3;color:#1a1a1a;border-color:#1a1a1a;}
+.dt.rest.on{background:#FCE4EC;color:#880E4F;border-color:#F48FB1;}
+.mission{display:flex;align-items:flex-start;gap:10px;padding:12px;background:#fff;border-radius:12px;border:0.5px solid #ebebeb;margin-bottom:8px;cursor:pointer;transition:transform 0.1s,opacity 0.15s;}
+.mission:active{transform:scale(0.98);}
+.mission.done{opacity:0.45;}
+.mission.done .mt{text-decoration:line-through;}
+.mi{width:36px;height:36px;min-width:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.mi svg{width:18px;height:18px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.mt{font-size:14px;font-weight:600;color:#1a1a1a;line-height:1.3;}
+.ms{font-size:12px;color:#888;margin-top:2px;line-height:1.4;}
+.xpb{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:#f0f0ee;color:#666;margin-top:5px;display:inline-block;}
+.mission.done .xpb{background:#E8F5E9;color:#1B5E20;}
+.chk{width:22px;height:22px;min-width:22px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;transition:all 0.2s;margin-top:1px;}
+.mission.done .chk{background:#1D9E75;border-color:#1D9E75;}
+.plat-row{display:flex;gap:5px;margin-top:7px;}
+.plat{flex:1;padding:7px 2px;border-radius:7px;border:1px solid #e0e0e0;background:#fff;font-size:10px;font-weight:700;color:#888;cursor:pointer;text-align:center;transition:all 0.15s;}
+.plat.on{background:#E8F5E9;border-color:#A5D6A7;color:#1B5E20;}
+.habit-item{display:flex;align-items:center;gap:10px;padding:12px;background:#fff;border-radius:12px;border:0.5px solid #ebebeb;margin-bottom:8px;cursor:pointer;transition:transform 0.1s;}
+.habit-item:active{transform:scale(0.98);}
+.habit-item.done .htext{text-decoration:line-through;color:#bbb;}
+.htext{font-size:14px;font-weight:500;color:#1a1a1a;flex:1;}
+.hxp{font-size:10px;font-weight:700;color:#888;background:#f0f0ee;padding:2px 7px;border-radius:6px;}
+.habit-item.done .hxp{background:#E8F5E9;color:#1B5E20;}
+.hchk{width:22px;height:22px;min-width:22px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.habit-item.done .hchk{background:#1D9E75;border-color:#1D9E75;}
+.sched-blk{border-left:3px solid #e0e0e0;padding:4px 0 4px 10px;margin-bottom:9px;}
+.sched-blk.work{border-left-color:#1D9E75;}
+.sched-blk.build{border-left-color:#1a1a1a;}
+.sb-time{font-size:10px;color:#888;font-weight:700;letter-spacing:0.03em;}
+.sb-label{font-size:11px;color:#aaa;margin-top:1px;}
+.sb-task{font-size:13px;font-weight:500;color:#1a1a1a;margin-top:3px;display:flex;align-items:center;gap:6px;}
+.sb-task::before{content:'';width:5px;height:5px;border-radius:50%;background:#1a1a1a;min-width:5px;}
+.vpcard{border-radius:12px;padding:14px;margin-bottom:8px;}
+.vp-tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:8px;display:inline-block;margin-bottom:8px;}
+.vp-text{font-size:15px;font-weight:700;color:#1a1a1a;line-height:1.4;}
+.vp-hint{font-size:12px;color:#888;margin-top:4px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cd{aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#fff;border:0.5px solid #eee;position:relative;transition:transform 0.1s;}
+.cd:active{transform:scale(0.94);}
+.cd.empty{background:transparent;border:none;cursor:default;}
+.cd.today{border:2px solid #1a1a1a;}
+.cd.complete{background:#1D9E75;border-color:#1D9E75;}
+.cd.complete .cdn{color:#fff;}
+.cd.partial{background:#E8F5E9;border-color:#A5D6A7;}
+.cd.noted::after{content:'';width:5px;height:5px;border-radius:50%;background:#E91E63;position:absolute;bottom:3px;}
+.cdn{font-size:12px;font-weight:600;color:#1a1a1a;}
+.cd.future .cdn{color:#ccc;}
+.ws{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;}
+.wd{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:38px;}
+.wdl{font-size:10px;color:#aaa;font-weight:700;}
+.wdd{width:38px;height:38px;border-radius:50%;border:1.5px solid #e0e0e0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#888;background:#fff;}
+.wdd.complete{background:#1D9E75;border-color:#1D9E75;color:#fff;}
+.wdd.today{border:2.5px solid #1a1a1a;color:#1a1a1a;}
+.wdd.today.complete{background:#1D9E75;border-color:#1D9E75;color:#fff;}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.sc{background:#fff;border:0.5px solid #ebebeb;border-radius:12px;padding:12px;}
+.sv{font-size:22px;font-weight:700;color:#1a1a1a;}
+.sl{font-size:11px;color:#888;margin-top:2px;}
+.mpc{background:#fff;border:0.5px solid #ebebeb;border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.mph{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;}
+.mpb{display:none;padding:0 14px 12px;}.mpb.open{display:block;}
+.mpg{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:0.5px solid #f5f5f3;cursor:pointer;}
+.mpg:last-child{border-bottom:none;}
+.mpg.done .mpgt{text-decoration:line-through;color:#ccc;}
+.mgbox{width:16px;height:16px;min-width:16px;border-radius:4px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.mpg.done .mgbox{background:#1D9E75;border-color:#1D9E75;}
+.mpgt{font-size:13px;color:#1a1a1a;line-height:1.4;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding-bottom:32px;}
+.mhandle{width:36px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 16px;}
+.mtitle{font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:3px;}
+.msub{font-size:12px;color:#888;margin-bottom:14px;}
+input[type=text],textarea{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:11px 12px;font-size:14px;font-family:inherit;color:#1a1a1a;background:#fff;outline:none;-webkit-appearance:none;margin-bottom:8px;}
+input[type=text]:focus,textarea:focus{border-color:#1a1a1a;}
+textarea{resize:none;height:80px;margin-bottom:0;}
+.btn-black{width:100%;padding:14px;background:#1a1a1a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;}
+.btn-gray{padding:12px;background:#f0f0ee;color:#1a1a1a;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;width:100%;}
+.btn-sm{padding:8px 14px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:13px;font-weight:700;padding:10px 22px;border-radius:20px;z-index:500;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+.remind-item{display:flex;align-items:center;justify-content:space-between;background:#fff;border:0.5px solid #ebebeb;border-radius:10px;padding:11px 12px;margin-bottom:7px;}
+.habit-manage{display:flex;align-items:center;justify-content:space-between;background:#fff;border:0.5px solid #ebebeb;border-radius:12px;padding:12px;margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- Day modal -->
+<div class="modal-bg" id="day-modal" onclick="if(event.target===this)closeDayModal()">
+<div class="modal">
+  <div class="mhandle"></div>
+  <div class="mtitle" id="dm-title">Monday</div>
+  <div class="msub">Set day type, add notes, and list tasks for your schedule</div>
+  <div class="dt-row" id="dm-types">
+    <button class="dt serve" onclick="setModalType('serve')">Serving</button>
+    <button class="dt construct" onclick="setModalType('construct')">Construction</button>
+    <button class="dt off" onclick="setModalType('off')">Day off</button>
+    <button class="dt rest" onclick="setModalType('rest')">Rest day</button>
+  </div>
+  <input type="text" id="dm-note" placeholder="Note (event, reminder, anything...)">
+  <textarea id="dm-tasks" placeholder="Tasks for this day — one per line&#10;Example:&#10;Book headlight job&#10;Edit and post TikTok&#10;Go to the gym"></textarea>
+  <button class="btn-black" onclick="saveDayModal()">Save day</button>
+  <button class="btn-gray" onclick="closeDayModal()">Cancel</button>
+</div>
+</div>
+
+<!-- Add habit modal -->
+<div class="modal-bg" id="habit-modal" onclick="if(event.target===this)closeHabitModal()">
+<div class="modal">
+  <div class="mhandle"></div>
+  <div class="mtitle">Add a daily habit</div>
+  <div class="msub">This will appear in your checklist every single day</div>
+  <input type="text" id="habit-input" placeholder="e.g. Do Duolingo, Drink water, Read 10 pages">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+    <label style="font-size:13px;color:#888;font-weight:600;">XP reward per completion</label>
+    <span style="font-size:14px;font-weight:700;color:#1a1a1a;" id="habit-xp-label">10 XP</span>
+  </div>
+  <input type="range" min="5" max="30" step="5" value="10" id="habit-xp" oninput="document.getElementById('habit-xp-label').textContent=this.value+' XP'" style="width:100%;margin-bottom:12px;">
+  <button class="btn-black" onclick="saveHabit()">Add habit</button>
+  <button class="btn-gray" onclick="closeHabitModal()">Cancel</button>
+</div>
+</div>
+
+<!-- TODAY -->
+<div id="pg-today" class="pg on">
+  <div class="hdr">
+    <div>
+      <div style="font-size:20px;font-weight:700;" id="today-dow">Today</div>
+      <div style="font-size:12px;color:#888;margin-top:1px;" id="today-date"></div>
+    </div>
+    <div style="display:flex;gap:7px;">
+      <div class="pill pfire"><span class="n" id="streak-n">0</span><span class="l">streak</span></div>
+      <div class="pill pstar"><span class="n" id="xp-n">0</span><span class="l">XP</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+      <span style="font-size:13px;font-weight:700;" id="lvl-name">Level 1 — Crook</span>
+      <span style="font-size:11px;color:#888;" id="lvl-xp">0 XP</span>
+    </div>
+    <div class="lvlbar"><div class="lvlfill" id="lvl-fill" style="width:0%"></div></div>
+  </div>
+
+  <div id="today-note-banner"></div>
+
+  <div style="font-size:12px;color:#888;font-weight:700;margin-bottom:6px;">What kind of day is it?</div>
+  <div class="dt-row" id="today-dt">
+    <button class="dt serve" onclick="setTodayType('serve')">Serving</button>
+    <button class="dt construct" onclick="setTodayType('construct')">Construction</button>
+    <button class="dt off" onclick="setTodayType('off')">Day off</button>
+    <button class="dt rest" onclick="setTodayType('rest')">Rest day</button>
+  </div>
+
+  <div id="schedule-section"></div>
+
+  <div class="sh" id="habits-sh" style="display:none;">Your habits</div>
+  <div id="habits-today"></div>
+
+  <div id="missions-section"></div>
+
+  <div id="prompt-section"></div>
+
+  <div class="sh">Got a gap — quick wins</div>
+  <div id="gap-section"></div>
+</div>
+
+<!-- CALENDAR -->
+<div id="pg-cal" class="pg">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <button onclick="prevMonth()" style="background:#fff;border:0.5px solid #e0e0e0;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;">&#8592;</button>
+    <span style="font-size:16px;font-weight:700;" id="cal-title"></span>
+    <button onclick="nextMonth()" style="background:#fff;border:0.5px solid #e0e0e0;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;">&#8594;</button>
+  </div>
+  <div style="display:flex;gap:10px;font-size:10px;font-weight:700;color:#aaa;margin-bottom:8px;flex-wrap:wrap;">
+    <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;background:#1D9E75;display:inline-block;"></span>Done</span>
+    <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;background:#E91E63;display:inline-block;"></span>Note</span>
+    <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border:2px solid #1a1a1a;border-radius:50%;display:inline-block;"></span>Today</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
+    <div style="font-size:10px;text-align:center;color:#aaa;font-weight:700;padding:3px 0;">Su</div>
+    <div style="font-size:10px;text-align:center;color:#aaa;font-weight:700;padding:3px 0;">Mo</div>
+    <div style="font-size:10px;text-align:center;color:#aaa;font-weight:700;padding:3px 0;">Tu</div>
+    <div style="font-size:10px;text-align:center;color:#aaa;font-weight:700;padding:3px 0;">We</div>
+    <div style="font-size:10px;text-align:center;color:#aaa;font-weight:700;padding:3px 0;">Th</div>
+    <div style="font-size:10px;text-align:center;color:#aaa;font-weight:700;padding:3px 0;">Fr</div>
+    <div style="font-size:10px;text-align:center;color:#aaa;font-weight:700;padding:3px 0;">Sa</div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div id="upcoming-notes" style="margin-top:14px;"></div>
+</div>
+
+<!-- WEEK -->
+<div id="pg-week" class="pg">
+  <div style="font-size:20px;font-weight:700;margin-bottom:3px;">This week</div>
+  <div style="font-size:12px;color:#888;margin-bottom:12px;">Don't break the chain</div>
+  <div class="ws" id="week-strip"></div>
+  <div class="sg">
+    <div class="sc"><div class="sv" id="ws-streak">0</div><div class="sl">Current streak</div></div>
+    <div class="sc"><div class="sv" id="ws-best">0</div><div class="sl">Best streak</div></div>
+    <div class="sc"><div class="sv" id="ws-xp">0</div><div class="sl">Total XP</div></div>
+    <div class="sc"><div class="sv" id="ws-level">1</div><div class="sl">Level</div></div>
+  </div>
+  <div class="sh">Content posted this week</div>
+  <div class="card" id="week-content"></div>
+</div>
+
+<!-- PLAN -->
+<div id="pg-plan" class="pg">
+  <div style="font-size:20px;font-weight:700;margin-bottom:3px;">4-month plan</div>
+  <div style="font-size:12px;color:#888;margin-bottom:10px;">Build to profit and grow — check off goals as you hit them</div>
+  <div class="card" style="margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+      <span style="font-size:13px;font-weight:700;" id="plan-pct-label">0% complete</span>
+      <span style="font-size:11px;color:#888;" id="plan-xp-note">+15 XP per goal</span>
+    </div>
+    <div class="lvlbar"><div class="lvlfill" id="plan-fill" style="width:0%"></div></div>
+  </div>
+  <div id="plan-months"></div>
+</div>
+
+<!-- HABITS -->
+<div id="pg-habits" class="pg">
+  <div style="font-size:20px;font-weight:700;margin-bottom:3px;">My habits</div>
+  <div style="font-size:12px;color:#888;margin-bottom:14px;">These appear in your daily checklist every day</div>
+  <button class="btn-black" onclick="openHabitModal()" style="margin-bottom:16px;">+ Add new habit</button>
+  <div id="habits-manage"></div>
+  <div id="habits-empty" style="text-align:center;padding:24px;color:#bbb;font-size:14px;display:none;">No habits yet. Add one above.</div>
+</div>
+
+<nav class="nav">
+  <button class="nb on" onclick="switchPg('today',this)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+    <span>Today</span>
+  </button>
+  <button class="nb" onclick="switchPg('cal',this)">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Calendar</span>
+  </button>
+  <button class="nb" onclick="switchPg('week',this)">
+    <svg viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+    <span>Week</span>
+  </button>
+  <button class="nb" onclick="switchPg('plan',this)">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span>Plan</span>
+  </button>
+  <button class="nb" onclick="switchPg('habits',this)">
+    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    <span>Habits</span>
+  </button>
+</nav>
+
+<script>
+const LN=['Crook','Pickpocket','Corner Boy','Lookout','Street Rat','Block Runner','Foot Soldier','Young Hustler','Street Smart','Street Legend','Side Hustler','Getting Money','On the Grind','Coming Up','Making Moves','Known','Recognized','Connected','Plugged In','Respected','Associate','Earner','Trusted','Made Man','Solid','Crew Member','Shot Caller','Right Hand','Inner Circle','Underboss','Local Boss','City Figure','Power Player','Operator','Networked','Don in the Making','The Man','Top Dog','Untouchable','Don','Kingpin','Empire Builder','Crime Boss','Syndicate Leader','Enforcer','Crime Lord','The Boss',"Godfather's Hand",'Legend','Myth','Notorious','Feared','The Don','Ghost','Shadow Boss','The Architect','Kingmaker','Power Broker','Overlord','The Commission','Hidden Hand','Old Money','New Empire','The Arrangement','The Council','The Network','The Syndicate','The Organization','The Family','Capo di Capi','The Blueprint',"Godfather's Ear",'The Consigliere','The Undying','The Immortal','The Invisible','The Inevitable','The Origin','The Founder','The Patriarch','The Authority','The Institution','The Legacy','The Dynasty','The Empire','The Order','The Code','The Oath','The Brotherhood','The Blood','The Silence','The Shadow','The Crown','The Throne','The Kingdom','Don of Dons','Il Capo','The Untouchable','The Immortal Don','Mafia Boss'];
+
+const PROMPTS=[
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'What I wore to work today — full fit breakdown',hint:'Film in good lighting. Show every piece.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'One base piece styled 3 completely different ways',hint:'Same item, different vibes. Keep it short.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'Budget fit check — entire look under $50',hint:'People love this. Be specific about prices.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'My 5 most-worn pieces right now',hint:'Lay them flat or show each on the body.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'The one accessory that changes everything',hint:'Hat, chain, shoes — make the case for yours.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'Getting dressed in under 2 minutes',hint:'Timelapse or fast cut. Morning energy.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'Clean and simple — why less is more',hint:'Show a minimal outfit. Explain your thinking.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'What NOT to wear — style mistakes I see',hint:'Keep it general, not mean. Be confident.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'My go-to formula for building any outfit',hint:'Teach your process. People want the system.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'What I wish I knew about style at 16',hint:'Personal and relatable. Real talk works.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'Styling the same shoes 4 different ways',hint:'Quick cuts. Show versatility.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'The fit I get the most compliments on',hint:'Film it with confidence. Own it.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'Thrift flip — turned this cheap piece into a fire outfit',hint:'Transformation content always performs well.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'How I dress for a long shift and still look clean',hint:'Practical + stylish. Servers love this content.'},
+  {cat:'Fashion',bg:'#f5f5f3',tc:'#1a1a1a',text:'Summer essentials I actually wear',hint:'Keep it authentic — only show what you really rock.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'I made $140 in 30 minutes — here\'s exactly how',hint:'Headlight restoration breakdown. Show the process.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'Day in the life: serving shift + headlight job',hint:'Document both. Show the grind is real.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'Before and after: headlight restoration timelapse',hint:'Film every job. This content converts customers.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'3 income streams at 18 — full breakdown',hint:'Honest numbers. People respect transparency.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'How much money I made this week',hint:'Real talk. Even slow weeks make good content.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'Why I started Acosta Auto Lens',hint:'Origin story content. Builds connection.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'The tools I use for headlight restoration',hint:'Show your kit. People are curious about the setup.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'Customer reaction to the finished restoration',hint:'Film reactions with permission. Gold content.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'What it\'s actually like being 18 and self-employed',hint:'Real, not polished. Authenticity is the hook.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'How I market my business for free',hint:'Nextdoor, Marketplace, Instagram. Share the strategy.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'The hustle nobody sees',hint:'Behind the scenes of your week. Early starts, late nights.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'What I learned from my first 10 headlight jobs',hint:'Practical lessons. Value-adds always do well.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'Morning grind — first thing I do before most people wake up',hint:'6am energy. Aspirational but real.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'How I decide what\'s worth my time',hint:'Your 3 filters: worth it, money, enjoyment.'},
+  {cat:'Hustle',bg:'#1a1a1a',tc:'#f5f5f3',text:'Building my editing skills for free',hint:'CapCut to DaVinci. Show your learning journey.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'Real day in my life — no filter, no script',hint:'Raw and honest. People connect with realness.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'What 18 actually looks like for me',hint:'Contrast the expectation vs your reality.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'My morning routine before a long day',hint:'Keep it simple and authentic. No fluff.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'Wind down routine — how I end the day',hint:'Evening content is underrated. Calm, reflective.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'What keeps me going when I don\'t feel like it',hint:'Motivational but real. Share your actual mindset.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'3 things I do every day no matter what',hint:'Your non-negotiables. People want to copy good habits.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'A week in my life — honest recap',hint:'Sunday reflection content. Works great as longer Reel.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'What I eat in a day working two jobs',hint:'Budget, practical, real. Highly relatable.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'How I stay focused when my schedule is random',hint:'Your actual system. People who relate will follow.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'Late night thoughts — where I\'m actually headed',hint:'Vulnerable and real. Late night content gets engagement.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'Things I\'m grateful for right now',hint:'Grounding content. Works well after a hard week.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'Building in public — what I\'ve learned this month',hint:'Monthly reflection. Shows growth over time.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'The version of me I\'m building toward',hint:'Vision content. Personal and aspirational.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'One year from now I want to look back and see...',hint:'Fill it in honestly. People will relate and follow.'},
+  {cat:'Lifestyle',bg:'#E8F5E9',tc:'#1B5E20',text:'Things nobody tells you about being young and building',hint:'Real talk content. Always resonates with young audiences.'},
+];
+
+const MISSIONS={
+  serve:[
+    {id:'sv1',ic:'camera',bg:'#f5f5f3',sc:'#1a1a1a',title:'Film one clip today',sub:'Fit check, shift moment, or real life. 60 seconds is enough.',xp:20},
+    {id:'sv2',ic:'send',bg:'#E8F5E9',sc:'#1B5E20',title:'Post to all 3 platforms',sub:'Instagram, TikTok, YouTube Shorts. Same video, triple reach.',xp:30,plat:true},
+    {id:'sv3',ic:'book',bg:'#EDE7F6',sc:'#4527A0',title:'Watch one editing tutorial',sub:'15-30 min during wind down. CapCut or DaVinci.',xp:20},
+    {id:'sv4',ic:'heart',bg:'#FCE4EC',sc:'#880E4F',title:'Personal & faith time',sub:'Even 10 quiet minutes. Pray, journal, or breathe.',xp:15},
+  ],
+  construct:[
+    {id:'cn1',ic:'camera',bg:'#f5f5f3',sc:'#1a1a1a',title:'Film the work day',sub:'Authentic hustle content from the job site.',xp:20},
+    {id:'cn2',ic:'send',bg:'#E8F5E9',sc:'#1B5E20',title:'Edit and post tonight',sub:'Instagram, TikTok, YouTube Shorts.',xp:30,plat:true},
+    {id:'cn3',ic:'book',bg:'#EDE7F6',sc:'#4527A0',title:'30 min editing practice',sub:'Wind down with a tutorial or practice project.',xp:20},
+    {id:'cn4',ic:'heart',bg:'#FCE4EC',sc:'#880E4F',title:'Personal & faith time',sub:'You worked hard. Take a moment.',xp:15},
+  ],
+  off:[
+    {id:'of1',ic:'camera',bg:'#f5f5f3',sc:'#1a1a1a',title:'Batch film 2-3 pieces',sub:'Fashion, lifestyle, or headlight job. One session, multiple clips.',xp:35},
+    {id:'of2',ic:'send',bg:'#E8F5E9',sc:'#1B5E20',title:'Post to all 3 platforms',sub:'Off day = full content day. Use the time.',xp:40,plat:true},
+    {id:'of3',ic:'book',bg:'#EDE7F6',sc:'#4527A0',title:'1 hour skill work',sub:'Deep DaVinci practice. No distractions.',xp:40},
+    {id:'of4',ic:'heart',bg:'#FCE4EC',sc:'#880E4F',title:'Recharge intentionally',sub:'Rest is productive. This fuels everything else.',xp:15},
+  ],
+  rest:[
+    {id:'rs1',ic:'camera',bg:'#f5f5f3',sc:'#1a1a1a',title:'One clip if inspired',sub:'No pressure. Only film if something catches you.',xp:10},
+    {id:'rs2',ic:'heart',bg:'#FCE4EC',sc:'#880E4F',title:'Personal & faith time',sub:'This is what rest days are for.',xp:20},
+    {id:'rs3',ic:'zap',bg:'#FFF8E1',sc:'#E65100',title:'Plan tomorrow',sub:'5 minutes. Know what you\'re doing before you sleep.',xp:10},
+  ],
+};
+
+const GAP=[
+  {id:'g1',ic:'map',bg:'#FFF8E1',sc:'#E65100',title:'Post on Nextdoor',sub:'3 minutes. Could book your next headlight job.',xp:10},
+  {id:'g2',ic:'msg',bg:'#f5f5f3',sc:'#1a1a1a',title:'Text 3 people about Acosta',sub:'Personal messages convert more than posts.',xp:15},
+  {id:'g3',ic:'camera',bg:'#E8F5E9',sc:'#1B5E20',title:'Post a quick story',sub:'What you\'re doing right now. Raw and real.',xp:10},
+  {id:'g4',ic:'refresh',bg:'#FFF8E1',sc:'#E65100',title:'Refresh Marketplace listing',sub:'Keep Acosta Auto Lens at the top.',xp:10},
+];
+
+const SCHED_BLOCKS={
+  serve:[
+    {time:'7:00–8:00am',label:'Pre-shift',cap:1,type:'build'},
+    {time:'8:00am–3:00pm',label:'SERVING SHIFT',cap:0,type:'work',locked:true},
+    {time:'3:00–5:00pm',label:'Afternoon',cap:2,type:'build'},
+    {time:'5:00–7:00pm',label:'Late afternoon',cap:2,type:'build'},
+    {time:'7:00–9:00pm',label:'Evening',cap:2,type:'build'},
+    {time:'9:00–10:30pm',label:'Wind down',cap:1,type:'rest'},
+  ],
+  construct:[
+    {time:'6:30–7:30am',label:'Early block',cap:1,type:'build'},
+    {time:'7:30am–4:00pm',label:'CONSTRUCTION WORK',cap:0,type:'work',locked:true},
+    {time:'4:00–6:30pm',label:'Afternoon',cap:2,type:'build'},
+    {time:'6:30–9:00pm',label:'Evening',cap:2,type:'build'},
+    {time:'9:00–10:30pm',label:'Wind down',cap:1,type:'rest'},
+  ],
+  off:[
+    {time:'8:00–10:00am',label:'Morning block',cap:2,type:'build'},
+    {time:'10:00am–12:00pm',label:'Midday block',cap:2,type:'build'},
+    {time:'12:00–1:00pm',label:'Lunch',cap:0,type:'rest',locked:true},
+    {time:'1:00–4:00pm',label:'Afternoon block',cap:3,type:'build'},
+    {time:'5:00–7:00pm',label:'Evening block',cap:2,type:'build'},
+    {time:'9:00–10:30pm',label:'Wind down',cap:1,type:'rest'},
+  ],
+  rest:[
+    {time:'9:00–11:00am',label:'Morning (light)',cap:1,type:'build'},
+    {time:'1:00–3:00pm',label:'Afternoon',cap:2,type:'build'},
+    {time:'6:00–8:00pm',label:'Evening',cap:1,type:'build'},
+    {time:'9:00–10:00pm',label:'Wind down',cap:1,type:'rest'},
+  ],
+};
+
+const PLAN_DATA=[
+  {color:'#1a1a1a',title:'Month 1 — Build the foundation',desc:'Consistency, systems, first money',goals:[
+    {id:'p1a',t:'Post 3x per week to all 3 platforms consistently'},
+    {id:'p1b',t:'Complete CapCut level-up (hooks, pacing, captions)'},
+    {id:'p1c',t:'Book and complete 10 headlight jobs'},
+    {id:'p1d',t:'Set up Google Business Profile and all listings'},
+    {id:'p1e',t:'Hit 100+ followers on TikTok or Instagram'},
+  ]},
+  {color:'#1D9E75',title:'Month 2 — Level up skills and income',desc:'DaVinci basics, growing audience',goals:[
+    {id:'p2a',t:'Learn DaVinci Resolve — import, edit, export'},
+    {id:'p2b',t:'Reach 20+ total headlight jobs'},
+    {id:'p2c',t:'Hit 500+ followers across platforms'},
+    {id:'p2d',t:'Create your first signature color grade'},
+    {id:'p2e',t:'Have at least one piece of content hit 1k+ views'},
+  ]},
+  {color:'#BA7517',title:'Month 3 — Start profiting from content',desc:'First paid edit, brand presence',goals:[
+    {id:'p3a',t:'Do one free edit for a creator — get a testimonial'},
+    {id:'p3b',t:'Set your editing rate and create a service offer'},
+    {id:'p3c',t:'Reach 1k+ followers on at least one platform'},
+    {id:'p3d',t:'Have a recognizable brand look across all platforms'},
+    {id:'p3e',t:'Land first paid video editing client'},
+  ]},
+  {color:'#534AB7',title:'Month 4 — Profitable and growing',desc:'Multiple income streams working together',goals:[
+    {id:'p4a',t:'Earning from 2+ sources: serving, headlights, or editing'},
+    {id:'p4b',t:'5 portfolio pieces showcasing your editing skill'},
+    {id:'p4c',t:'Listed on Contra.com with a profile and offer'},
+    {id:'p4d',t:'Posting feels like a habit — no more forcing it'},
+    {id:'p4e',t:'Clear vision of next move: freelance, brand, or both'},
+  ]},
+];
+
+const SVG={
+  camera:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+  send:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>`,
+  book:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>`,
+  heart:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`,
+  zap:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>`,
+  map:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>`,
+  msg:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`,
+  refresh:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>`,
+  check:`<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,3" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+};
+
+const S=k=>{try{return JSON.parse(localStorage.getItem('acp2_'+k)||'null');}catch{return null;}};
+const SS=(k,v)=>{try{localStorage.setItem('acp2_'+k,JSON.stringify(v));}catch{}};
+const todayKey=()=>new Date().toISOString().split('T')[0];
+const fmtKey=(y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+let state={
+  streak:S('streak')||0, bestStreak:S('bestStreak')||0,
+  totalXP:S('totalXP')||0, lastActive:S('lastActive')||'',
+  checks:S('checks')||{}, platforms:S('platforms')||{},
+  dayTypes:S('dayTypes')||{}, notes:S('notes')||{},
+  dayTasks:S('dayTasks')||{}, schedules:S('schedules')||{},
+  habits:S('habits')||[], habitChecks:S('habitChecks')||{},
+  planChecks:S('planChecks')||{},
+  calMonth:new Date().getMonth(), calYear:new Date().getFullYear(),
+  promptIdx:S('promptIdx')||0,
+  modalKey:null, modalType:null,
+};
+
+function getLvlIdx(){
+  let l=0;
+  for(let n=0;n<100;n++){if(state.totalXP>=n*n*3)l=n;}
+  return l;
+}
+
+function saveAll(){
+  ['streak','bestStreak','totalXP','lastActive','checks','platforms','dayTypes','notes','dayTasks','schedules','habits','habitChecks','planChecks','promptIdx'].forEach(k=>SS(k,state[k]));
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function updateStreak(){
+  const today=todayKey();
+  if(state.lastActive===today)return;
+  const yest=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  state.streak=state.lastActive===yest?state.streak+1:1;
+  if(state.streak>state.bestStreak)state.bestStreak=state.streak;
+  state.lastActive=today;
+}
+
+function toggleCheck(id,xp){
+  const tk=todayKey();
+  if(!state.checks[tk])state.checks[tk]={};
+  const was=state.checks[tk][id];
+  state.checks[tk][id]=!was;
+  if(!was){state.totalXP+=xp;updateStreak();showToast('+'+xp+' XP');}
+  else state.totalXP=Math.max(0,state.totalXP-xp);
+  saveAll();renderAll();
+}
+
+function toggleHabitCheck(id,xp){
+  const tk=todayKey();
+  if(!state.habitChecks[tk])state.habitChecks[tk]={};
+  const was=state.habitChecks[tk][id];
+  state.habitChecks[tk][id]=!was;
+  if(!was){state.totalXP+=xp;updateStreak();showToast('+'+xp+' XP — habit done!');}
+  else state.totalXP=Math.max(0,state.totalXP-xp);
+  saveAll();renderAll();
+}
+
+function togglePlatform(mId,plat){
+  const tk=todayKey(),key=tk+'_'+mId+'_'+plat;
+  state.platforms[key]=!state.platforms[key];
+  if(state.platforms[key])showToast(plat+' posted!');
+  saveAll();renderMissions();renderWeekContent();
+}
+
+function setTodayType(type){
+  const tk=todayKey();state.dayTypes[tk]=type;
+  document.querySelectorAll('#today-dt .dt').forEach(b=>b.classList.remove('on'));
+  document.querySelector('#today-dt .dt.'+type).classList.add('on');
+  saveAll();renderMissions();renderScheduleSection();
+}
+
+// Schedule generator
+function generateSchedule(tasks,type){
+  const blocks=JSON.parse(JSON.stringify(SCHED_BLOCKS[type]||SCHED_BLOCKS.off));
+  const q=[...tasks];
+  return blocks.map(b=>{
+    const assigned=[];
+    if(!b.locked){for(let i=0;i<b.cap&&q.length;i++)assigned.push(q.shift());}
+    return{...b,tasks:assigned};
+  });
+}
+
+function buildSchedule(){
+  const tk=todayKey();
+  const type=state.dayTypes[tk]||'off';
+  const tasks=state.dayTasks[tk]||[];
+  if(!tasks.length){showToast('Add tasks first from the Calendar');return;}
+  const sched=generateSchedule(tasks,type);
+  state.schedules[tk]=sched;
+  saveAll();renderScheduleSection();showToast('Schedule built!');
+}
+
+function renderScheduleSection(){
+  const tk=todayKey();
+  const type=state.dayTypes[tk]||'off';
+  const tasks=state.dayTasks[tk]||[];
+  const note=state.notes[tk];
+  const sched=state.schedules[tk];
+  const el=document.getElementById('schedule-section');
+  const banner=document.getElementById('today-note-banner');
+
+  if(note||tasks.length){
+    let bhtml='';
+    if(note)bhtml+=`<div style="background:#FFF8E1;border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid #FFC107;"><span style="font-size:11px;font-weight:700;color:#E65100;">NOTE</span><div style="font-size:13px;color:#1a1a1a;margin-top:2px;">${note}</div></div>`;
+    if(tasks.length){
+      bhtml+=`<div style="background:#f5f5f3;border-radius:10px;padding:10px 12px;margin-bottom:8px;">`;
+      bhtml+=`<span style="font-size:11px;font-weight:700;color:#888;">TODAY'S TASKS</span>`;
+      tasks.forEach(t=>bhtml+=`<div style="font-size:13px;color:#1a1a1a;margin-top:4px;display:flex;align-items:center;gap:6px;"><span style="width:5px;height:5px;border-radius:50%;background:#1a1a1a;min-width:5px;display:inline-block;"></span>${t}</div>`);
+      bhtml+=`</div>`;
+    }
+    banner.innerHTML=bhtml;
+  } else banner.innerHTML='';
+
+  if(sched){
+    let html=`<div class="sh">Today's schedule</div><div class="card" style="margin-bottom:12px;">`;
+    sched.forEach(b=>{
+      html+=`<div class="sched-blk ${b.type}"><div class="sb-time">${b.time}</div><div class="sb-label">${b.label}</div>`;
+      if(b.locked)html+=`<div class="sb-task" style="color:#aaa;">${b.label}</div>`;
+      else b.tasks.forEach(t=>html+=`<div class="sb-task">${t}</div>`);
+      if(!b.locked&&!b.tasks.length)html+=`<div style="font-size:12px;color:#ccc;margin-top:3px;">Free time</div>`;
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+    el.innerHTML=html;
+  } else if(tasks.length){
+    el.innerHTML=`<button class="btn-black" onclick="buildSchedule()" style="margin-bottom:12px;">Build my day schedule</button>`;
+  } else {
+    el.innerHTML=`<div style="background:#f5f5f3;border-radius:12px;padding:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;"><div><div style="font-size:13px;font-weight:700;color:#1a1a1a;">Plan your day</div><div style="font-size:12px;color:#888;margin-top:2px;">Add tasks in the Calendar to auto-build a schedule</div></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>`;
+  }
+}
+
+function renderHeader(){
+  const now=new Date();
+  document.getElementById('today-dow').textContent=now.toLocaleDateString('en-US',{weekday:'long'});
+  document.getElementById('today-date').textContent=now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('streak-n').textContent=state.streak;
+  const tkXP=getTodayXP();
+  document.getElementById('xp-n').textContent=tkXP;
+  const li=getLvlIdx();
+  const cur=li*li*3, next=(li+1)*(li+1)*3;
+  const pct=li<99?Math.min(100,Math.round((state.totalXP-cur)/(next-cur)*100)):100;
+  document.getElementById('lvl-name').textContent='Level '+(li+1)+' — '+LN[li];
+  document.getElementById('lvl-xp').textContent=state.totalXP+' XP total';
+  document.getElementById('lvl-fill').style.width=pct+'%';
+}
+
+function getTodayXP(){
+  const tk=todayKey(),type=state.dayTypes[tk]||'off';
+  const allM=[...(MISSIONS[type]||[]),...GAP];
+  const d=state.checks[tk]||{};
+  const hc=state.habitChecks[tk]||{};
+  const mXP=allM.filter(m=>d[m.id]).reduce((s,m)=>s+m.xp,0);
+  const hXP=state.habits.filter(h=>hc[h.id]).reduce((s,h)=>s+h.xp,0);
+  return mXP+hXP;
+}
+
+function renderHabitsToday(){
+  const tk=todayKey();
+  const hc=state.habitChecks[tk]||{};
+  const el=document.getElementById('habits-today');
+  const sh=document.getElementById('habits-sh');
+  if(!state.habits.length){el.innerHTML='';sh.style.display='none';return;}
+  sh.style.display='';
+  el.innerHTML=state.habits.map(h=>`
+    <div class="habit-item ${hc[h.id]?'done':''}" onclick="toggleHabitCheck('${h.id}',${h.xp})">
+      <div class="hchk">${hc[h.id]?SVG.check:''}</div>
+      <div class="htext">${h.text}</div>
+      <div class="hxp">${h.xp} XP</div>
+    </div>`).join('');
+}
+
+function renderMissions(){
+  const tk=todayKey(),type=state.dayTypes[tk]||'off';
+  const missions=MISSIONS[type]||[];
+  const d=state.checks[tk]||{};
+  const typeLabel={serve:'Serving day missions',construct:'Construction day',off:'Day off missions',rest:'Rest day'};
+  let html=`<div class="sh">${typeLabel[type]||'Your missions'}</div>`;
+  missions.forEach(m=>{
+    const done=!!d[m.id];
+    html+=`<div class="mission ${done?'done':''}" onclick="toggleCheck('${m.id}',${m.xp})">
+      <div class="mi" style="background:${m.bg};">${SVG[m.ic].replace('<svg','<svg style="stroke:'+m.sc+'"')}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="mt">${m.title}</div>
+        <div class="ms">${m.sub}</div>
+        ${m.plat?renderPlats(m.id,tk):''}
+        <span class="xpb">${done?'✓ ':''} ${m.xp} XP</span>
+      </div>
+      <div class="chk">${done?SVG.check:''}</div>
+    </div>`;
+  });
+  document.getElementById('missions-section').innerHTML=html;
+
+  let ghtml='';
+  GAP.forEach(m=>{
+    const done=!!d[m.id];
+    ghtml+=`<div class="mission ${done?'done':''}" onclick="toggleCheck('${m.id}',${m.xp})">
+      <div class="mi" style="background:${m.bg};">${SVG[m.ic].replace('<svg','<svg style="stroke:'+m.sc+'"')}</div>
+      <div style="flex:1;min-width:0;"><div class="mt">${m.title}</div><div class="ms">${m.sub}</div><span class="xpb">${done?'✓ ':''}${m.xp} XP</span></div>
+      <div class="chk">${done?SVG.check:''}</div>
+    </div>`;
+  });
+  document.getElementById('gap-section').innerHTML=ghtml;
+
+  renderPromptSection();
+}
+
+function renderPlats(mId,tk){
+  const ig=state.platforms[tk+'_'+mId+'_ig'],tt=state.platforms[tk+'_'+mId+'_tt'],yt=state.platforms[tk+'_'+mId+'_yt'];
+  return `<div class="plat-row" onclick="event.stopPropagation()">
+    <button class="plat ${ig?'on':''}" onclick="togglePlatform('${mId}','ig')">Instagram ${ig?'✓':''}</button>
+    <button class="plat ${tt?'on':''}" onclick="togglePlatform('${mId}','tt')">TikTok ${tt?'✓':''}</button>
+    <button class="plat ${yt?'on':''}" onclick="togglePlatform('${mId}','yt')">YT Shorts ${yt?'✓':''}</button>
+  </div>`;
+}
+
+function renderPromptSection(){
+  const p=PROMPTS[state.promptIdx%PROMPTS.length];
+  const el=document.getElementById('prompt-section');
+  el.innerHTML=`
+    <div class="sh">Need a video idea?</div>
+    <div class="vpcard" style="background:${p.bg};border:0.5px solid #ebebeb;">
+      <div class="vp-tag" style="background:${p.tc==='#f5f5f3'?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.08)'}; color:${p.tc}">${p.cat}</div>
+      <div class="vp-text" style="color:${p.tc}">${p.text}</div>
+      <div class="vp-hint" style="color:${p.tc==='#f5f5f3'?'rgba(245,245,243,0.7)':'rgba(26,26,26,0.5)'}">${p.hint}</div>
+    </div>
+    <button class="btn-gray" onclick="nextPrompt()" style="margin-top:0;">Get another idea</button>`;
+}
+
+function nextPrompt(){
+  state.promptIdx=(state.promptIdx+1)%PROMPTS.length;
+  saveAll();renderPromptSection();
+}
+
+// Calendar
+function renderCal(){
+  const y=state.calYear,m=state.calMonth;
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-title').textContent=months[m]+' '+y;
+  const firstDay=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const today=todayKey();
+  let html='';
+  for(let i=0;i<firstDay;i++)html+='<div class="cd empty"></div>';
+  for(let d=1;d<=days;d++){
+    const key=fmtKey(y,m,d);
+    const isToday=key===today;
+    const isFuture=key>today;
+    const complete=isDayComplete(key);
+    const partial=isDayPartial(key);
+    const noted=!!(state.notes[key]||(state.dayTasks[key]&&state.dayTasks[key].length));
+    const lbl=new Date(key+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    html+=`<div class="cd ${isToday?'today':''} ${complete?'complete':''} ${partial&&!complete?'partial':''} ${noted?'noted':''} ${isFuture?'future':''}" onclick="openDayModal('${key}','${lbl}')">
+      <span class="cdn">${d}</span></div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+
+  const upcoming=Object.entries({...state.notes,...Object.fromEntries(Object.entries(state.dayTasks).filter(([k,v])=>v&&v.length))})
+    .filter(([k])=>k>=today).sort((a,b)=>a[0].localeCompare(b[0])).slice(0,4);
+  
+  if(upcoming.length){
+    let nhtml='<div class="sh">Upcoming</div>';
+    const seen=new Set();
+    upcoming.forEach(([k])=>{
+      if(seen.has(k))return;seen.add(k);
+      const note=state.notes[k];const tasks=state.dayTasks[k]||[];
+      const d=new Date(k+'T12:00:00');
+      nhtml+=`<div class="card" onclick="openDayModal('${k}','${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}')">
+        <div style="font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:5px;">${d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</div>
+        ${note?`<div style="font-size:13px;color:#888;">${note}</div>`:''}
+        ${tasks.length?`<div style="font-size:12px;color:#aaa;margin-top:3px;">${tasks.length} task${tasks.length>1?'s':''} planned</div>`:''}
+      </div>`;
+    });
+    document.getElementById('upcoming-notes').innerHTML=nhtml;
+  } else {
+    document.getElementById('upcoming-notes').innerHTML='<div style="font-size:13px;color:#bbb;text-align:center;padding:20px;">Tap any day to add notes or plan tasks</div>';
+  }
+}
+
+function isDayComplete(key){
+  const type=state.dayTypes[key]||'off';
+  const ms=MISSIONS[type]||[];
+  if(!ms.length)return false;
+  const d=state.checks[key]||{};
+  return ms.every(m=>d[m.id]);
+}
+function isDayPartial(key){
+  const type=state.dayTypes[key]||'off';
+  const ms=MISSIONS[type]||[];
+  const d=state.checks[key]||{};
+  return ms.some(m=>d[m.id])&&!isDayComplete(key);
+}
+
+function openDayModal(key,label){
+  state.modalKey=key;state.modalType=state.dayTypes[key]||null;
+  document.getElementById('dm-title').textContent=label;
+  document.getElementById('dm-note').value=state.notes[key]||'';
+  document.getElementById('dm-tasks').value=(state.dayTasks[key]||[]).join('\n');
+  document.querySelectorAll('#dm-types .dt').forEach(b=>b.classList.remove('on'));
+  if(state.modalType){const b=document.querySelector('#dm-types .dt.'+state.modalType);if(b)b.classList.add('on');}
+  document.getElementById('day-modal').classList.add('open');
+}
+function closeDayModal(){document.getElementById('day-modal').classList.remove('open');state.modalKey=null;}
+function setModalType(type){
+  state.modalType=type;
+  document.querySelectorAll('#dm-types .dt').forEach(b=>b.classList.remove('on'));
+  document.querySelector('#dm-types .dt.'+type).classList.add('on');
+}
+function saveDayModal(){
+  const key=state.modalKey;if(!key)return;
+  const note=document.getElementById('dm-note').value.trim();
+  const tasksRaw=document.getElementById('dm-tasks').value;
+  const tasks=tasksRaw.split('\n').map(t=>t.trim()).filter(Boolean);
+  if(note)state.notes[key]=note;else delete state.notes[key];
+  if(tasks.length)state.dayTasks[key]=tasks;else delete state.dayTasks[key];
+  if(state.dayTypes[key]!==state.modalType&&state.modalType){state.dayTypes[key]=state.modalType;delete state.schedules[key];}
+  if(state.modalType)state.dayTypes[key]=state.modalType;
+  saveAll();closeDayModal();renderAll();showToast('Day saved!');
+}
+function prevMonth(){state.calMonth--;if(state.calMonth<0){state.calMonth=11;state.calYear--;}renderCal();}
+function nextMonth(){state.calMonth++;if(state.calMonth>11){state.calMonth=0;state.calYear++;}renderCal();}
+
+// Week
+function renderWeek(){
+  const today=new Date();
+  const start=new Date(today);start.setDate(today.getDate()-today.getDay());
+  const days=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const key=d.toISOString().split('T')[0];
+    const isToday=key===todayKey();
+    const complete=isDayComplete(key);
+    const partial=isDayPartial(key);
+    const isFuture=d>today;
+    html+=`<div class="wd"><div class="wdl">${days[i]}</div>
+      <div class="wdd ${complete?'complete':''} ${!complete&&partial?'partial':''} ${isToday?'today':''}" style="${isFuture?'opacity:0.3;':''}">
+        ${complete?SVG.check.replace('white','white').replace('12','14').replace('12','14'):d.getDate()}
+      </div></div>`;
+  }
+  document.getElementById('week-strip').innerHTML=html;
+  document.getElementById('ws-streak').textContent=state.streak;
+  document.getElementById('ws-best').textContent=state.bestStreak;
+  document.getElementById('ws-xp').textContent=state.totalXP;
+  document.getElementById('ws-level').textContent=getLvlIdx()+1;
+  renderWeekContent();
+}
+
+function renderWeekContent(){
+  const today=new Date();
+  const start=new Date(today);start.setDate(today.getDate()-today.getDay());
+  let ig=0,tt=0,yt=0;
+  for(let i=0;i<7;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const key=d.toISOString().split('T')[0];
+    const type=state.dayTypes[key]||'off';
+    const pm=MISSIONS[type]?.find(m=>m.plat);
+    if(pm){
+      if(state.platforms[key+'_'+pm.id+'_ig'])ig++;
+      if(state.platforms[key+'_'+pm.id+'_tt'])tt++;
+      if(state.platforms[key+'_'+pm.id+'_yt'])yt++;
+    }
+  }
+  const goal=3;
+  const el=document.getElementById('week-content');
+  if(!el)return;
+  el.innerHTML=`<div style="font-size:12px;color:#888;font-weight:600;margin-bottom:10px;">Goal: 3 posts per platform</div>`+
+    [['Instagram',ig,'#1a1a1a'],['TikTok',tt,'#E91E63'],['YouTube Shorts',yt,'#1D9E75']].map(([name,count,color])=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div style="font-size:13px;font-weight:600;min-width:120px;">${name}</div>
+      <div style="flex:1;background:#f0f0ee;border-radius:4px;height:8px;overflow:hidden;">
+        <div style="height:100%;border-radius:4px;background:${color};width:${Math.min(100,count/goal*100)}%;transition:width 0.4s;"></div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:${count>=goal?color:'#888'};min-width:28px;text-align:right;">${count}/${goal}</div>
+    </div>`).join('');
+}
+
+// Plan
+function renderPlan(){
+  const allGoals=PLAN_DATA.flatMap(m=>m.goals);
+  const done=allGoals.filter(g=>state.planChecks[g.id]).length;
+  const pct=Math.round(done/allGoals.length*100);
+  document.getElementById('plan-pct-label').textContent=pct+'% complete';
+  document.getElementById('plan-fill').style.width=pct+'%';
+  let html='';
+  PLAN_DATA.forEach((pm,pi)=>{
+    const md=pm.goals.filter(g=>state.planChecks[g.id]).length;
+    const mp=Math.round(md/pm.goals.length*100);
+    html+=`<div class="mpc">
+      <div class="mph" onclick="togglePlanMonth(${pi})">
+        <div style="width:10px;height:10px;border-radius:50%;background:${pm.color};min-width:10px;"></div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;">${pm.title}</div>
+          <div style="font-size:11px;color:#888;margin-top:1px;">${pm.desc}</div>
+          <div class="lvlbar" style="margin-top:5px;"><div class="lvlfill" style="width:${mp}%;background:${pm.color};"></div></div>
+        </div>
+        <div style="font-size:12px;color:#aaa;margin-left:8px;font-weight:700;">${mp}%</div>
+      </div>
+      <div class="mpb" id="pb-${pi}">
+        ${pm.goals.map(g=>`
+          <div class="mpg ${state.planChecks[g.id]?'done':''}" onclick="togglePlanGoal('${g.id}')">
+            <div class="mgbox">${state.planChecks[g.id]?SVG.check:''}</div>
+            <div class="mpgt">${g.t}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  document.getElementById('plan-months').innerHTML=html;
+}
+function togglePlanMonth(pi){document.getElementById('pb-'+pi).classList.toggle('open');}
+function togglePlanGoal(id){
+  state.planChecks[id]=!state.planChecks[id];
+  if(state.planChecks[id]){state.totalXP+=15;showToast('+15 XP — goal hit!');}
+  saveAll();renderPlan();renderHeader();
+}
+
+// Habits management
+function openHabitModal(){document.getElementById('habit-modal').classList.add('open');document.getElementById('habit-input').value='';}
+function closeHabitModal(){document.getElementById('habit-modal').classList.remove('open');}
+function saveHabit(){
+  const text=document.getElementById('habit-input').value.trim();
+  if(!text)return;
+  const xp=parseInt(document.getElementById('habit-xp').value)||10;
+  const id='h_'+Date.now();
+  state.habits.push({id,text,xp});
+  saveAll();closeHabitModal();renderHabitsManage();renderHabitsToday();
+  showToast('Habit added!');
+}
+function deleteHabit(id){
+  state.habits=state.habits.filter(h=>h.id!==id);
+  saveAll();renderHabitsManage();renderHabitsToday();
+}
+function renderHabitsManage(){
+  const el=document.getElementById('habits-manage');
+  const empty=document.getElementById('habits-empty');
+  if(!state.habits.length){el.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  el.innerHTML=state.habits.map(h=>`
+    <div class="habit-manage">
+      <div>
+        <div style="font-size:14px;font-weight:600;">${h.text}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;">${h.xp} XP per day</div>
+      </div>
+      <button class="btn-sm" style="background:#FFEBEE;color:#C62828;" onclick="deleteHabit('${h.id}')">Remove</button>
+    </div>`).join('');
+}
+
+function switchPg(name,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+name).classList.add('on');
+  btn.classList.add('on');
+  if(name==='cal')renderCal();
+  if(name==='week')renderWeek();
+  if(name==='plan')renderPlan();
+  if(name==='habits')renderHabitsManage();
+}
+
+function renderAll(){
+  renderHeader();renderScheduleSection();renderHabitsToday();renderMissions();
+  if(document.getElementById('pg-cal').classList.contains('on'))renderCal();
+  if(document.getElementById('pg-week').classList.contains('on'))renderWeek();
+  if(document.getElementById('pg-plan').classList.contains('on'))renderPlan();
+  if(document.getElementById('pg-habits').classList.contains('on'))renderHabitsManage();
+}
+
+// Init
+const tk=todayKey();
+const existType=state.dayTypes[tk];
+if(existType){const b=document.querySelector('#today-dt .dt.'+existType);if(b)b.classList.add('on');}
+renderAll();
+</script>
+</body>
+</html>
